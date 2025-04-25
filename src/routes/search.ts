@@ -38,7 +38,7 @@ export const search = new Hono()
         items: { title: string; link: string; snippet: string }[];
       };
 
-      const firstFiveItems = json.items.slice(0, 8);
+      const firstFiveItems = json.items.slice(0, 5);
 
       const contentPromises = firstFiveItems.map(async (item) => {
         try {
@@ -48,13 +48,16 @@ export const search = new Hono()
           const reader = new Readability(doc.window.document);
           const article = reader.parse();
 
+          // Limit content length to 2500 characters
+          const limitedContent = article?.textContent?.slice(0, 2500) || "";
+
           return {
             source: {
               title: item.title,
               link: item.link,
               description: item.snippet,
             },
-            content: article?.textContent || "",
+            content: limitedContent,
           };
         } catch (error) {
           console.error(`Error fetching content for ${item.link}:`, error);
